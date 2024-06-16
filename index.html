@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 90%;
+            /* Increased width */
+            max-width: 800px;
+            /* Maximum width */
+            background-color: #ffffff;
+            padding: 40px;
+            /* Increased padding for inner content */
+            border-radius: 20px;
+            /* Rounded corners */
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            /* Increased box shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .question-box,
+        .answer-box {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            /* Limit width for consistency */
+        }
+
+        .question-box textarea {
+            width: 100%;
+            padding: 14px;
+            /* Increased padding */
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            /* Rounded corners */
+            resize: none;
+            /* Prevent resizing */
+        }
+
+        .question-box label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .question-box .ask-button {
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            /* Adjusted padding */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 10px;
+            /* Rounded corners */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            /* Smooth background color transition */
+        }
+
+        .question-box .ask-button:hover {
+            background-color: #45a049;
+            /* Darker green on hover */
+        }
+
+        .control-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .control-buttons button {
+            background-color: #007bff;
+            /* Blue */
+            border: none;
+            color: white;
+            padding: 20px;
+            /* Adjusted padding for circular shape */
+            font-size: 20px;
+            margin: 0 10px;
+            /* Adjusted margin */
+            border-radius: 50%;
+            /* Circular shape */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            /* Smooth background color transition */
+        }
+
+        .control-buttons button:hover {
+            background-color: #0056b3;
+            /* Darker blue on hover */
+        }
+
+        .answer-box {
+            width: 100%;
+            max-width: 600px;
+            /* Limit width for consistency */
+            white-space: pre-wrap;
+            background: #f0f0f0;
+            padding: 16px;
+            /* Increased padding */
+            border-radius: 10px;
+            /* Rounded corners */
+            animation: fadeIn 0.5s ease;
+            /* CSS animation */
+        }
+
+        .speed-display {
+            font-size: 18px;
+            margin-top: 40px;
+            /* Increased margin to add space */
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .speed-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .speed-controls button {
+            background-color: #007bff;
+            /* Blue */
+            border: none;
+            color: white;
+            padding: 20px;
+            /* Adjusted padding */
+            font-size: 16px;
+            margin: 0 10px;
+            /* Adjusted margin */
+            border-radius: 50%;
+            /* Circular shape */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            /* Smooth background color transition */
+        }
+
+        .speed-controls button:hover {
+            background-color: #0056b3;
+            /* Darker blue on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="text-align: center;">Book Chatbot</h1>
+        <div class="question-box">
+            <label for="question">Ask a question about a book:</label><br>
+            <textarea id="question" rows="4" placeholder="Type your question here"></textarea><br>
+            <button onclick="askQuestion()" class="ask-button">Ask</button>
+        </div>
+        <div class="answer-box" id="answer"></div>
+    </div>
+
+    <div class="speed-display" id="speedDisplay">Speed: 50 ms</div>
+    <div class="speed-controls">
+        <button onclick="increaseSpeed()">+</button>
+        <button onclick="decreaseSpeed()">-</button>
+    </div>
+
+    <script>
+        let typingSpeed = 50; // Initial typing speed in milliseconds
+
+        async function askQuestion() {
+            const question = document.getElementById('question').value;
+            const response = await fetch('http://127.0.0.1:5000/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            });
+            const data = await response.json();
+            const answerBox = document.getElementById('answer');
+
+            // Clear previous content
+            answerBox.innerHTML = '';
+
+            // Simulate typing effect with adjustable speed
+            for (let i = 0; i < data.answer.length; i++) {
+                setTimeout(() => {
+                    answerBox.innerHTML += data.answer.charAt(i);
+                }, typingSpeed * i);
+            }
+        }
+
+        function updateSpeedDisplay() {
+            document.getElementById('speedDisplay').innerText = `Speed: ${typingSpeed} ms`;
+        }
+
+        function increaseSpeed() {
+            if (typingSpeed > 10) { // Adjust minimum speed as needed
+                typingSpeed -= 10;
+                updateSpeedDisplay();
+            }
+        }
+
+        function decreaseSpeed() {
+            typingSpeed += 10;
+            updateSpeedDisplay();
+        }
+
+        // Initialize speed display
+        updateSpeedDisplay();
+    </script>
+</body>
+
+</html>
