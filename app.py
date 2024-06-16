@@ -8,7 +8,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 app = Flask(__name__)
 CORS(app)
 
-# Book data with summaries
 books_data = [
     {"title": "Harry Potter series by J.K. Rowling", "description": "Harry Potter is a series of fantasy novels written by British author J. K. Rowling. The novels chronicle the lives of a young wizard, Harry Potter, and his friends Hermione Granger and Ron Weasley, all of whom are students at Hogwarts School of Witchcraft and Wizardry. The main story arc concerns Harry's struggle against Lord Voldemort, a dark wizard who intends to become immortal, overthrow the wizard governing body known as the Ministry of Magic, and subjugate all wizards and Muggles. Throughout the series, Harry and his friends face various challenges, uncover secrets about their families, and confront the complexities of good and evil.", "summary": "A young wizard, Harry Potter, and his friends fight against the dark wizard Lord Voldemort."},
     {"title": "The Hobbit by J.R.R. Tolkien", "description": "The Hobbit is a fantasy novel by J.R.R. Tolkien. It follows the adventures of Bilbo Baggins, a hobbit who enjoys a peaceful, pastoral life. Bilbo is thrust into an epic quest to reclaim the lost Kingdom of Erebor from the fearsome dragon Smaug. Along the way, he encounters trolls, elves, goblins, and the creature Gollum, who possesses a powerful ring. Bilbo's journey takes him from his rural surroundings into a world of magical creatures and dangerous territories, ultimately leading to a climactic battle and a newfound sense of bravery and wisdom.", "summary": "Bilbo Baggins embarks on a quest to reclaim a lost kingdom from the dragon Smaug."},
@@ -36,6 +35,10 @@ def generate_answer(question, df_books, vectorizer):
     """
     Generates an answer based on the question using the provided book descriptions.
     """
+    # Check if the question is empty
+    if not question.strip():
+        return "The question cannot be empty. Please ask a valid question."
+    
     question_vec = vectorizer.transform([question])
     description_vecs = vectorizer.transform(df_books['description'])
     similarities = cosine_similarity(question_vec, description_vecs).flatten()
@@ -44,6 +47,10 @@ def generate_answer(question, df_books, vectorizer):
     max_sim_index = similarities.argmax()
     most_relevant_book = df_books.iloc[max_sim_index]
     
+    # Check if the highest similarity score is above a certain threshold
+    if similarities[max_sim_index] < 0.1:  # threshold can be adjusted
+        return "Sorry, I couldn't find a book that matches your question."
+    
     # Return the summary of the most relevant book
     return most_relevant_book['summary']
 
@@ -51,7 +58,7 @@ def generate_answer(question, df_books, vectorizer):
 @app.route('/ask', methods=['POST'])
 def ask_question():
     if request.method == 'POST':
-        question = request.json['question']
+        question = request.json.get('question', '')
         
         # Generate an answer based on the provided data
         answer = generate_answer(question, df_books, vectorizer)
