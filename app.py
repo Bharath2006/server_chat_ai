@@ -32,6 +32,10 @@ def generate_answer(question, df_books, vectorizer):
     """
     Generates an answer based on the question using the provided book descriptions.
     """
+    # Check if the question is empty
+    if not question.strip():
+        return "The question cannot be empty. Please ask a valid question."
+    
     question_vec = vectorizer.transform([question])
     description_vecs = vectorizer.transform(df_books['description'])
     similarities = cosine_similarity(question_vec, description_vecs).flatten()
@@ -40,6 +44,10 @@ def generate_answer(question, df_books, vectorizer):
     max_sim_index = similarities.argmax()
     most_relevant_book = df_books.iloc[max_sim_index]
     
+    # Check if the highest similarity score is above a certain threshold
+    if similarities[max_sim_index] < 0.1:  # threshold can be adjusted
+        return "Sorry, I couldn't find a book that matches your question."
+    
     # Return the summary of the most relevant book
     return most_relevant_book['summary']
 
@@ -47,7 +55,7 @@ def generate_answer(question, df_books, vectorizer):
 @app.route('/ask', methods=['POST'])
 def ask_question():
     if request.method == 'POST':
-        question = request.json['question']
+        question = request.json.get('question', '')
         
         # Generate an answer based on the provided data
         answer = generate_answer(question, df_books, vectorizer)
