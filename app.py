@@ -34,7 +34,12 @@ vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(df_books['text'])
 
 @app.route('/ask', methods=['POST'])
+@app.route('/ask', methods=['POST'])
 def ask():
+    # Check if 'question' key exists in the JSON request
+    if 'question' not in request.json or not request.json['question']:
+        return jsonify({'error': 'Please provide a non-empty question.'}), 400
+    
     question = request.json['question']
     
     # Vectorize the user's question
@@ -45,6 +50,10 @@ def ask():
     
     # Find the index of the most similar book
     most_similar_index = cosine_similarities.argmax()
+    
+    # Check if cosine similarity score is below a certain threshold to consider no relevant topic found
+    if cosine_similarities[most_similar_index] < 0.2:  # Example threshold, adjust as needed
+        return jsonify({'error': 'No relevant topic found for the given question.'}), 404
     
     # Retrieve the most relevant book data
     most_relevant_book = df_books.iloc[most_similar_index]
@@ -63,6 +72,7 @@ def ask():
         'detailed_description': detailed_description
     }
     return jsonify({'answer': response})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
