@@ -80,27 +80,6 @@
             /* Slightly darker light blue on hover */
         }
 
-        .control-buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .control-buttons button {
-            background-color: #007bff;
-            border: none;
-            color: white;
-            padding: 20px;
-            font-size: 20px;
-            margin: 0 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .control-buttons button:hover {
-            background-color: #0056b3;
-        }
-
         .answer-box {
             width: 100%;
             max-width: 600px;
@@ -174,6 +153,11 @@
             });
             const data = await response.json();
             const answerBox = document.getElementById('answer');
+
+            if ('error' in data) {
+                answerBox.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                return;
+            }
 
             const { title, description, summary, detailed_description } = data.answer;
             const fullAnswer = detailed_description;
