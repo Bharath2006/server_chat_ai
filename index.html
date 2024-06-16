@@ -6,33 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Chatbot</title>
     <style>
-        body {
+        body,
+        html {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background-color: #000000;
+            /* Black background */
+            color: #ffffff;
+            /* White text */
         }
 
         .container {
             width: 90%;
-            /* Increased width */
             max-width: 800px;
-            /* Maximum width */
-            background-color: #ffffff;
+            background-color: #333333;
+            /* Dark grey for contrast */
             padding: 40px;
-            /* Increased padding for inner content */
             border-radius: 20px;
-            /* Rounded corners */
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            /* Increased box shadow */
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin: 20px auto;
         }
 
         .question-box,
@@ -40,19 +38,19 @@
             margin-bottom: 20px;
             width: 100%;
             max-width: 600px;
-            /* Limit width for consistency */
         }
 
         .question-box textarea {
             width: 100%;
             padding: 14px;
-            /* Increased padding */
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 10px;
-            /* Rounded corners */
             resize: none;
-            /* Prevent resizing */
+            background-color: #444444;
+            /* Darker grey for textarea */
+            color: #ffffff;
+            /* White text */
         }
 
         .question-box label {
@@ -63,26 +61,23 @@
         }
 
         .question-box .ask-button {
-            background-color: #4CAF50;
-            /* Green */
+            background-color: #add8e6;
+            /* Light blue */
             border: none;
             color: white;
             padding: 16px 32px;
-            /* Adjusted padding */
             text-align: center;
             text-decoration: none;
             display: inline-block;
             font-size: 16px;
             border-radius: 10px;
-            /* Rounded corners */
             cursor: pointer;
             transition: background-color 0.3s ease;
-            /* Smooth background color transition */
         }
 
         .question-box .ask-button:hover {
-            background-color: #45a049;
-            /* Darker green on hover */
+            background-color: #87ceeb;
+            /* Slightly darker light blue on hover */
         }
 
         .control-buttons {
@@ -92,44 +87,36 @@
 
         .control-buttons button {
             background-color: #007bff;
-            /* Blue */
             border: none;
             color: white;
             padding: 20px;
-            /* Adjusted padding for circular shape */
             font-size: 20px;
             margin: 0 10px;
-            /* Adjusted margin */
             border-radius: 50%;
-            /* Circular shape */
             cursor: pointer;
             transition: background-color 0.3s ease;
-            /* Smooth background color transition */
         }
 
         .control-buttons button:hover {
             background-color: #0056b3;
-            /* Darker blue on hover */
         }
 
         .answer-box {
             width: 100%;
             max-width: 600px;
-            /* Limit width for consistency */
             white-space: pre-wrap;
-            background: #f0f0f0;
+            background: #444444;
+            /* Darker grey for answer box */
             padding: 16px;
-            /* Increased padding */
             border-radius: 10px;
-            /* Rounded corners */
             animation: fadeIn 0.5s ease;
-            /* CSS animation */
+            color: #ffffff;
+            /* White text */
         }
 
         .speed-display {
             font-size: 18px;
             margin-top: 40px;
-            /* Increased margin to add space */
             margin-bottom: 10px;
             text-align: center;
         }
@@ -142,24 +129,18 @@
 
         .speed-controls button {
             background-color: #007bff;
-            /* Blue */
             border: none;
             color: white;
             padding: 20px;
-            /* Adjusted padding */
             font-size: 16px;
             margin: 0 10px;
-            /* Adjusted margin */
             border-radius: 50%;
-            /* Circular shape */
             cursor: pointer;
             transition: background-color 0.3s ease;
-            /* Smooth background color transition */
         }
 
         .speed-controls button:hover {
             background-color: #0056b3;
-            /* Darker blue on hover */
         }
     </style>
 </head>
@@ -194,13 +175,16 @@
             const data = await response.json();
             const answerBox = document.getElementById('answer');
 
+            const { title, description, summary, detailed_description } = data.answer;
+            const fullAnswer = detailed_description;
+
             // Clear previous content
             answerBox.innerHTML = '';
 
             // Simulate typing effect with adjustable speed
-            for (let i = 0; i < data.answer.length; i++) {
+            for (let i = 0; i < fullAnswer.length; i++) {
                 setTimeout(() => {
-                    answerBox.innerHTML += data.answer.charAt(i);
+                    answerBox.innerHTML += fullAnswer.charAt(i);
                 }, typingSpeed * i);
             }
         }
