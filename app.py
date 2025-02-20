@@ -22,43 +22,28 @@ books_data = [
     {"title": "Frankenstein by Mary Shelley", "description": "Frankenstein is a novel by Mary Shelley. It tells the story of Victor Frankenstein, a young scientist who creates a grotesque creature in an unorthodox scientific experiment. Horrified by his creation, Victor abandons the creature, leading to a series of tragic events as the creature seeks revenge on his creator. The novel explores themes of ambition, humanity, and the ethical implications of scientific discovery, culminating in a dramatic pursuit and confrontation in the Arctic.", "summary": "Victor Frankenstein creates a grotesque creature in an unorthodox experiment."},
     {"title": "Crime and Punishment by Fyodor Dostoevsky", "description": "Crime and Punishment is a novel by Fyodor Dostoevsky. It follows the mental anguish and moral dilemmas of Rodion Raskolnikov, an impoverished ex-student who plans and executes a murder, believing he can transcend moral law. As he grapples with guilt and paranoia, Raskolnikov encounters Sonia, a compassionate woman whose faith and kindness contrast sharply with his own tortured psyche. The novel delves into themes of redemption, morality, and the human condition, culminating in Raskolnikov's eventual confession and search for atonement.", "summary": "Rodion Raskolnikov wrestles with guilt after committing a murder."}
 ]
-
-# Convert the books_data into a DataFrame
 df_books = pd.DataFrame(books_data)
-
-# Combine all text fields into a single text column for better similarity matching
+ column for better similarity matching
 df_books['text'] = df_books['title'] + " " + df_books['description'] + " " + df_books['summary']
-
-# Vectorize the text data using TF-IDF
 vectorizer = TfidfVectorizer()
 tfidf_matrix = vectorizer.fit_transform(df_books['text'])
-
 @app.route('/ask', methods=['POST'])
 @app.route('/ask', methods=['POST'])
 def ask():
-    # Check if 'question' key exists in the JSON request
     if 'question' not in request.json or not request.json['question']:
         return jsonify({'error': 'Please provide a non-empty question.'}), 400
     
     question = request.json['question']
-    
-    # Vectorize the user's question
+
     question_tfidf = vectorizer.transform([question])
-    
-    # Calculate cosine similarity between the question and the book texts
     cosine_similarities = cosine_similarity(question_tfidf, tfidf_matrix).flatten()
     
-    # Find the index of the most similar book
     most_similar_index = cosine_similarities.argmax()
-    
-    # Check if cosine similarity score is below a certain threshold to consider no relevant topic found
-    if cosine_similarities[most_similar_index] < 0.2:  # Example threshold, adjust as needed
+    if cosine_similarities[most_similar_index] < 0.2:  
         return jsonify({'error': 'No relevant topic found for the given question.'}), 404
     
-    # Retrieve the most relevant book data
     most_relevant_book = df_books.iloc[most_similar_index]
 
-    # Generate a more detailed and dynamic description based on the book data
     detailed_description = f"Title: {most_relevant_book['title']}\n\n" + \
                            f"Description: {most_relevant_book['description']}\n\n" + \
                            f"Summary: {most_relevant_book['summary']}\n\n" + \
